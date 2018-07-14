@@ -1,1 +1,1 @@
-web: gunicorn ci.update:app
+web: gunicorn nur_update:app
