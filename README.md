@@ -22,3 +22,7 @@ $ curl -XPOST https://nur-update.herokuapp.com/update?repo=mic92
 
 1. Get the travis api token of your repository `travis token --pro`
 2. Start the service: `TRAVIS_TOKEN=<TOKEN_FROM_PREVIOUS_COMMAND> python nur_update/__init__.py`
+
+## Roadmap
+
+Add webhook support for github/gitlab and co.
