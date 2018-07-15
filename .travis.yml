@@ -1,0 +1,6 @@
+language: python
+cache: pip
+install:
+  - pip install mypy
+script:
+  - mypy nur_update

@@ -1,10 +1,11 @@
 import os
 import sys
-from flask import Flask, request
 import json
 from urllib.request import Request, urlopen
 from datetime import datetime, timedelta
 from typing import Dict, Optional, Any
+
+from flask import Flask, request
 
 app = Flask(__name__, static_folder=None)
 
@@ -56,6 +57,10 @@ def index() -> Any:
       $ curl -XPOST {request.url_root}update?repo=mic92
       </code>
     </p>
+    <p>
+      <h2>Source code</h2>
+      Source code can be found on <a href="https://github.com/nix-community/nur-update">github</a>
+    </p>
   </body>
 </html>
 """
@@ -88,7 +93,7 @@ def update_travis() -> Any:
     return urlopen(req).read()
 
 
-def main():
+def main() -> None:
     token = os.environ.get("TRAVIS_TOKEN", None)
     if token is None:
         print("no TRAVIS_TOKEN environment variable set", file=sys.stderr)
