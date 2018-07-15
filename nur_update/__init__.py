@@ -93,14 +93,15 @@ def update_travis() -> Any:
     return urlopen(req).read()
 
 
-def main() -> None:
+def load_token() -> None:
     token = os.environ.get("TRAVIS_TOKEN", None)
     if token is None:
         print("no TRAVIS_TOKEN environment variable set", file=sys.stderr)
         sys.exit(1)
     app.config['TRAVIS_TOKEN'] = token
-    app.run()
 
+
+load_token()
 
 if __name__ == '__main__':
-    main()
+    app.run()
