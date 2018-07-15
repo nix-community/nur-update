@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/nix-community/nur-update.svg?branch=master)](https://travis-ci.org/nix-community/nur-update)
 
-Notify NUR to check for an update of an repository.
+Notify NUR to check for an update of a repository.
 This will update `repos.json.lock` in the [NUR](https://github.com/nix-community/NUR) repository if a new version is found.
 
 ## API
