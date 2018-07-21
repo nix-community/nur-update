@@ -28,3 +28,8 @@ $ curl -XPOST https://nur-update.herokuapp.com/update?repo=mic92
 ## Roadmap
 
 Add webhook support for github/gitlab and co.
+
+## Contributing
+
+Note that all updates to master are automatically pushed to
+`nur-update.herokuapp.com` when the travis build succeed.
