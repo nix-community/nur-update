@@ -11,7 +11,7 @@ app = Flask(__name__, static_folder=None)
 
 
 def api_headers() -> Dict[str, str]:
-    token = app.config['TRAVIS_TOKEN']
+    token = app.config["TRAVIS_TOKEN"]
 
     return {
         "Content-Type": "application/json",
@@ -31,12 +31,11 @@ def last_build_time() -> Optional[datetime]:
 
     for build in last_builds["builds"]:
         if build["event_type"] == "api":
-            return datetime.strptime(build["updated_at"],
-                                     "%Y-%m-%dT%H:%M:%S.%fZ")
+            return datetime.strptime(build["updated_at"], "%Y-%m-%dT%H:%M:%S.%fZ")
     return None
 
 
-@app.route('/', methods=["GET"])
+@app.route("/", methods=["GET"])
 def index() -> Any:
     return f"""
 <html>
@@ -66,29 +65,25 @@ def index() -> Any:
 """
 
 
-@app.route('/update', methods=["POST"])
+@app.route("/update", methods=["POST"])
 def update_travis() -> Any:
     ts = last_build_time()
     if ts is not None and (ts + timedelta(minutes=5)) > datetime.utcnow():
         return "The last build was less then 5 minutes ago, try later", 429
 
-    repo = request.args.get('repo')
+    repo = request.args.get("repo")
 
     if repo is None or repo == "":
         return "repo parameter is missing", 400
 
-    data = json.dumps({
-        "request": {
-            "message": "requested rebuild",
-            "branch": "master"
-        }
-    })
+    data = json.dumps({"request": {"message": "requested rebuild", "branch": "master"}})
 
     req = Request(
         f"{URL}/requests",
         headers=api_headers(),
         data=data.encode("utf-8"),
-        method="POST")
+        method="POST",
+    )
 
     return urlopen(req).read()
 
@@ -98,10 +93,10 @@ def load_token() -> None:
     if token is None:
         print("no TRAVIS_TOKEN environment variable set", file=sys.stderr)
         sys.exit(1)
-    app.config['TRAVIS_TOKEN'] = token
+    app.config["TRAVIS_TOKEN"] = token
 
 
 load_token()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run()
