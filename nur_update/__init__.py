@@ -5,33 +5,34 @@ from urllib.request import Request, urlopen
 from datetime import datetime, timedelta
 from typing import Dict, Optional, Any
 
+
 from flask import Flask, request
 
 app = Flask(__name__, static_folder=None)
 
 
 def api_headers() -> Dict[str, str]:
-    token = app.config["TRAVIS_TOKEN"]
+    token = app.config["GITHUB_TOKEN"]
 
     return {
         "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Travis-API-Version": "3",
+        "Accept": "application/vnd.github.v3+json",
         "Authorization": f"token {token}",
     }
 
 
-URL = "https://api.travis-ci.com/repo/nix-community%2FNUR"
+URL = "https://api.github.com/repos/nix-community/NUR"
 
 
 def last_build_time() -> Optional[datetime]:
-    req = Request(f"{URL}/builds?limit=10", headers=api_headers())
+    url = f"{URL}/actions/runs?per_page=1&branch=master"
+    app.logger.info("get latest actions: %s", url)
+    req = Request(url, headers=api_headers())
 
     last_builds = json.loads(urlopen(req).read())
 
-    for build in last_builds["builds"]:
-        if build["event_type"] == "api":
-            return datetime.strptime(build["updated_at"], "%Y-%m-%dT%H:%M:%S.%fZ")
+    for build in last_builds["workflow_runs"]:
+        return datetime.strptime(build["created_at"], "%Y-%m-%dT%H:%M:%SZ")
     return None
 
 
@@ -76,27 +77,30 @@ def update_travis() -> Any:
     if repo is None or repo == "":
         return "repo parameter is missing", 400
 
-    data = json.dumps({"request": {"message": "requested rebuild", "branch": "master"}})
+    data = json.dumps({"ref": "master"})
 
+    url = f"{URL}/actions/workflows/update.yml/dispatches"
+    app.logger.info("trigger workflow update: %s", url)
     req = Request(
-        f"{URL}/requests",
+        url,
         headers=api_headers(),
         data=data.encode("utf-8"),
         method="POST",
     )
+    resp = urlopen(req).read()
+    assert len(resp) == ""
 
-    return urlopen(req).read()
+    return "", 204
 
 
 def load_token() -> None:
-    token = os.environ.get("TRAVIS_TOKEN", None)
+    token = os.environ.get("GITHUB_TOKEN", None)
     if token is None:
-        print("no TRAVIS_TOKEN environment variable set", file=sys.stderr)
+        print("no GITHUB_TOKEN environment variable set", file=sys.stderr)
         sys.exit(1)
-    app.config["TRAVIS_TOKEN"] = token
+    app.config["GITHUB_TOKEN"] = token
 
-
-load_token()
 
 if __name__ == "__main__":
+    load_token()
     app.run()
