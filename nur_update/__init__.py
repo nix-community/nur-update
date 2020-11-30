@@ -96,6 +96,6 @@ def load_token() -> None:
     app.config["GITHUB_TOKEN"] = token
 
 
+load_token()
 if __name__ == "__main__":
-    load_token()
     app.run()
