@@ -1,7 +1,5 @@
 # NUR update endpoint
 
-[![Build Status](https://travis-ci.org/nix-community/nur-update.svg?branch=master)](https://travis-ci.org/nix-community/nur-update)
-
 Notify NUR to check for an update of a repository.
 This will update `repos.json.lock` in the [NUR](https://github.com/nix-community/NUR) repository if a new version is found.
 
@@ -22,14 +20,5 @@ $ curl -XPOST https://nur-update.herokuapp.com/update?repo=mic92
 
 ## Run the service yourself
 
-1. Get the travis api token of your repository `travis token --pro`
-2. Start the service: `TRAVIS_TOKEN=<TOKEN_FROM_PREVIOUS_COMMAND> python nur_update/__init__.py`
-
-## Roadmap
-
-Add webhook support for github/gitlab and co.
-
-## Contributing
-
-Note that all updates to master are automatically pushed to
-`nur-update.herokuapp.com` when the travis build succeed.
+1. Get the github api token of your repository from https://github.com/settings/tokens that has the workflow scope checked.
+2. Start the service: `GITHUB_TOKEN=<TOKEN_FROM_PREVIOUS_COMMAND> python nur_update/__init__.py`
