@@ -9,7 +9,5 @@ setup(
     description="Description of my package",
     packages=find_packages(),
     install_requires=["flask"],
-    entry_points={
-        "console_scripts": ["nur-update-server=nur_update:main"],
-    },
+    entry_points={"console_scripts": ["nur-update-server=nur_update:main"],},
 )
