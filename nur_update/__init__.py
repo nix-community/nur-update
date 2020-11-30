@@ -83,7 +83,7 @@ def update_travis() -> Any:
     app.logger.info("trigger workflow update: %s", url)
     req = Request(url, headers=api_headers(), data=data.encode("utf-8"), method="POST",)
     resp = urlopen(req).read()
-    assert len(resp) == ""
+    assert len(resp) == 0
 
     return "", 204
 
