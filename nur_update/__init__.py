@@ -81,7 +81,12 @@ def update_travis() -> Any:
 
     url = f"{URL}/actions/workflows/update.yml/dispatches"
     app.logger.info("trigger workflow update: %s", url)
-    req = Request(url, headers=api_headers(), data=data.encode("utf-8"), method="POST",)
+    req = Request(
+        url,
+        headers=api_headers(),
+        data=data.encode("utf-8"),
+        method="POST",
+    )
     resp = urlopen(req).read()
     assert len(resp) == 0
 

@@ -1,12 +1,18 @@
-with import <nixpkgs> {};
-python3Packages.buildPythonApplication {
+with import <nixpkgs> { };
+let
+  python = python39;
+in
+python.pkgs.buildPythonApplication {
   name = "nur-update";
   src = ./.;
   propagatedBuildInputs = [
-    python3Packages.flask
+    python.pkgs.flask
   ];
   checkInputs = [
-    mypy python3.pkgs.black python3.pkgs.flake8 glibcLocales
+    mypy
+    python.pkgs.black
+    python.pkgs.flake8
+    glibcLocales
   ];
   checkPhase = ''
     echo -e "\x1b[32m## run black\x1b[0m"
