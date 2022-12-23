@@ -11,8 +11,16 @@ from flask import Flask, request
 app = Flask(__name__, static_folder=None)
 
 
+def get_github_token() -> str:
+    token = os.environ.get("GITHUB_TOKEN", None)
+    if token is None:
+        print("no GITHUB_TOKEN environment variable set", file=sys.stderr)
+        sys.exit(1)
+    return token
+
+
 def api_headers() -> Dict[str, str]:
-    token = app.config["GITHUB_TOKEN"]
+    token = get_github_token()
 
     return {
         "Content-Type": "application/json",
@@ -93,16 +101,8 @@ def update_travis() -> Any:
     return "", 204
 
 
-def load_token() -> None:
-    token = os.environ.get("GITHUB_TOKEN", None)
-    if token is None:
-        print("no GITHUB_TOKEN environment variable set", file=sys.stderr)
-        sys.exit(1)
-    app.config["GITHUB_TOKEN"] = token
-
-
 def main() -> None:
-    load_token()
+    get_github_token()
     app.run()
 
 
