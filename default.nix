@@ -6,7 +6,7 @@ buildPythonApplication {
   propagatedBuildInputs = [
     flask
   ];
-  checkInputs = [
+  nativeCheckInputs = [
     mypy
     black
     flake8
