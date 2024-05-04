@@ -6,7 +6,7 @@ This will update `repos.json.lock` in the [NUR](https://github.com/nix-community
 ## API
 
 ```
-POST https://nur-update.herokuapp.com/update?repo=<REPO_NAME>
+POST https://nur-update.nix-community.org/update?repo=<REPO_NAME>
 ```
 
 NOTE: Also we check all repositories at the moment independent of the `repo`
@@ -15,7 +15,7 @@ parameter, this is likely to change in future.
 ## Example
 
 ```console
-$ curl -XPOST https://nur-update.herokuapp.com/update?repo=mic92
+$ curl -XPOST https://nur-update.nix-community.org/update?repo=mic92
 ```
 
 ## Run the service yourself
