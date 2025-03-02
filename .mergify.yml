@@ -1,7 +1,7 @@
 queue_rules:
   - name: default
     queue_conditions:
-      - base=master
+      - base=main
       - label~=merge-queue|dependencies
     merge_conditions:
       - check-success=tests

@@ -33,7 +33,7 @@ URL = "https://api.github.com/repos/nix-community/NUR"
 
 
 def last_build_time() -> Optional[datetime]:
-    url = f"{URL}/actions/runs?per_page=1&branch=master"
+    url = f"{URL}/actions/runs?per_page=1&branch=main"
     app.logger.info("get latest actions: %s", url)
     req = Request(url, headers=api_headers())
 
@@ -85,7 +85,7 @@ def update_travis() -> Any:
     if repo is None or repo == "":
         return "repo parameter is missing", 400
 
-    data = json.dumps({"ref": "master"})
+    data = json.dumps({"ref": "main"})
 
     url = f"{URL}/actions/workflows/update.yml/dispatches"
     app.logger.info("trigger workflow update: %s", url)
