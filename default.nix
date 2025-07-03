@@ -2,6 +2,7 @@
 
 buildPythonApplication {
   name = "nur-update";
+  format = "setuptools";
   src = ./.;
   propagatedBuildInputs = [
     flask
