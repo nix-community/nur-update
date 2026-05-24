@@ -1,46 +1,45 @@
 import os
 import sys
-import json
-from urllib.request import Request, urlopen
-from datetime import datetime, timedelta
-from typing import Dict, Optional, Any
+from datetime import datetime, timedelta, timezone
+from typing import Optional, Any
 
 
 from flask import Flask, request
+from github import Github, Auth
+from github.Branch import Branch
 
 app = Flask(__name__, static_folder=None)
 
 
-def get_github_token() -> str:
+def get_auth() -> Auth.Auth:
     token = os.environ.get("GITHUB_TOKEN", None)
-    if token is None:
-        print("no GITHUB_TOKEN environment variable set", file=sys.stderr)
+    if token is not None:
+        return Auth.Token(token)
+
+    private_key = os.environ.get("GITHUB_APP_PRIVATE_KEY", None)
+    app_id = os.environ.get("GITHUB_APP_ID", None)
+    installation_id = os.environ.get("GITHUB_APP_INSTALLATION_ID", None)
+    if private_key is not None and app_id is not None and installation_id is not None:
+        appauth = Auth.AppAuth(app_id, private_key)
+        return appauth.get_installation_auth(int(installation_id))
+    else:
+        print(
+            "either the GITHUB_TOKEN environment variable or the GITHUB_APP_{PRIVATE_KEY,APP_ID,INSTALLATION_ID} environment variables must be set",
+            file=sys.stderr,
+        )
         sys.exit(1)
-    return token
 
 
-def api_headers() -> Dict[str, str]:
-    token = get_github_token()
-
-    return {
-        "Content-Type": "application/json",
-        "Accept": "application/vnd.github.v3+json",
-        "Authorization": f"token {token}",
-    }
-
-
-URL = "https://api.github.com/repos/nix-community/NUR"
+nur_repo = Github(auth=get_auth()).get_repo("nix-community/NUR")
+nur_default_branch: Branch = nur_repo.get_branch("main")
 
 
 def last_build_time() -> Optional[datetime]:
-    url = f"{URL}/actions/runs?per_page=1&branch=main"
-    app.logger.info("get latest actions: %s", url)
-    req = Request(url, headers=api_headers())
+    last_builds = nur_repo.get_workflow_runs(branch=nur_default_branch).get_page(0)
+    app.logger.info("get latest actions: %s", nur_repo.url)
 
-    last_builds = json.loads(urlopen(req).read())
-
-    for build in last_builds["workflow_runs"]:
-        return datetime.strptime(build["created_at"], "%Y-%m-%dT%H:%M:%SZ")
+    for build in last_builds:
+        return build.created_at
     return None
 
 
@@ -77,7 +76,7 @@ def index() -> Any:
 @app.route("/update", methods=["POST"])
 def update_travis() -> Any:
     ts = last_build_time()
-    if ts is not None and (ts + timedelta(minutes=5)) > datetime.utcnow():
+    if ts is not None and (ts + timedelta(minutes=5)) > datetime.now(timezone.utc):
         return "The last build was less then 5 minutes ago, try later", 429
 
     repo = request.args.get("repo")
@@ -85,24 +84,14 @@ def update_travis() -> Any:
     if repo is None or repo == "":
         return "repo parameter is missing", 400
 
-    data = json.dumps({"ref": "main"})
-
-    url = f"{URL}/actions/workflows/update.yml/dispatches"
-    app.logger.info("trigger workflow update: %s", url)
-    req = Request(
-        url,
-        headers=api_headers(),
-        data=data.encode("utf-8"),
-        method="POST",
-    )
-    resp = urlopen(req).read()
-    assert len(resp) == 0
+    workflow = nur_repo.get_workflow("update.yml")
+    workflow.create_dispatch(ref=nur_default_branch)
+    app.logger.info("trigger workflow update: %s", workflow.url)
 
     return "", 204
 
 
 def main() -> None:
-    get_github_token()
     app.run()
 
 

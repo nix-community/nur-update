@@ -1,24 +1,32 @@
-{ buildPythonApplication, black, flake8, flask, mypy }:
+{
+  buildPythonApplication,
+  flask,
+  gunicorn,
+  mypy,
+  pygithub,
+  ruff,
+  setuptools,
+}:
 
 buildPythonApplication {
   name = "nur-update";
-  format = "setuptools";
+  pyproject = true;
   src = ./.;
-  propagatedBuildInputs = [
+  build-system = [ setuptools ];
+  dependencies = [
     flask
+    gunicorn
+    pygithub
   ];
   nativeCheckInputs = [
     mypy
-    black
-    flake8
+    ruff
   ];
   checkPhase = ''
-    echo -e "\x1b[32m## run black\x1b[0m"
-    black --version
-    black --check .
-    echo -e "\x1b[32m## run flake8\x1b[0m"
-    flake8 --version
-    flake8 nur_update
+    echo -e "\x1b[32m## run ruff\x1b[0m"
+    ruff --version
+    ruff check
+    ruff format --check
     echo -e "\x1b[32m## run mypy\x1b[0m"
     mypy --version
     mypy --strict nur_update
